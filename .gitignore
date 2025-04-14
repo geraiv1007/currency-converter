@@ -1,0 +1,8 @@
+.env.db
+.env.jwt
+.env.google
+.env.yandex
+__pycache__
+tests
+.venv
+.idea
