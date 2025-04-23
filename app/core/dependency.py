@@ -2,6 +2,7 @@ from fastapi import Depends, Security
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 
+from app.client.currency import CurrencyClient
 from app.client.google import GoogleClient
 from app.client.yandex import YandexClient
 from app.core.security import api_key_refresh_token, api_key_access_token
@@ -9,6 +10,7 @@ from app.db.connect import async_session_factory
 from app.exceptions.exceptions import WrongAuthorizationHeaderException
 from app.repositories.user import UserRepository
 from app.services.auth import AuthService
+from app.services.currency import CurrencyService
 from app.services.user import UserService
 from app.utils.jwt_auth import JWTAuth
 from app.utils.unitofwork import UserUnitOfWork
@@ -100,3 +102,15 @@ async def validate_refresh_token(
 ) -> str:
     await auth_service.validate_token(access_token, token_type='access', verify_exp=False)
     return await auth_service.validate_token(refresh_token, token_type='refresh', verify_exp=True)
+
+
+async def get_currency_client(
+        currency_client: Annotated[CurrencyClient, Depends()]
+):
+    return currency_client
+
+
+async def get_currency_service(
+        currency_client: Annotated[CurrencyClient, Depends(get_currency_client)]
+):
+    return CurrencyService(currency_client=currency_client)

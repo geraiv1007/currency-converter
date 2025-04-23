@@ -1,7 +1,4 @@
-.env.db
-.env.jwt
-.env.google
-.env.yandex
+.env.*
 __pycache__
 tests
 .venv

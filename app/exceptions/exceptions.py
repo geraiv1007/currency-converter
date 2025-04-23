@@ -57,3 +57,23 @@ class WrongAuthorizationHeaderException(AuthException):
 class InvalidGoogleTokenException(InvalidTokenException):
 
     pass
+
+
+class CurrencyException(HTTPException):
+
+
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_406_NOT_ACCEPTABLE,
+            detail=getattr(self, 'detail', None)
+        )
+
+
+class CurrencyConversionException(CurrencyException):
+
+    detail = 'Conversion unsuccessful. Please try again'
+
+
+class ExchangeRateInfoException(CurrencyException):
+
+    detail = 'Exchange rate info unavailable. Please try again'

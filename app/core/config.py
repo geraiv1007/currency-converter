@@ -34,23 +34,28 @@ class JWTSettings(EnvFileSettings):
         env_file=Path(__file__).resolve().parent.parent.parent / '.env.jwt'
     )
 
+class CurrencyApiSetting(EnvFileSettings):
 
-class ExternalOAuthSettings(EnvFileSettings):
+    API_KEY: str
+    API_URL: str
+
+    model_config = SettingsConfigDict(
+        extra='forbid',
+        env_file=Path(__file__).resolve().parent.parent.parent / '.env.currency'
+    )
+
+
+class ExternalAuthSettings(EnvFileSettings):
 
     CLIENT_ID: str
     CLIENT_SECRET: str
     REDIRECT_URI: str
     TOKEN_URI: str
     AUTH_URI: str
-    #CERT_URI: str
 
-class GoogleAuthSettings(EnvFileSettings):
 
-    CLIENT_ID: str
-    CLIENT_SECRET: str
-    REDIRECT_URI: str
-    TOKEN_URI: str
-    AUTH_URI: str
+class GoogleAuthSettings(ExternalAuthSettings):
+
     CERT_URI: str
 
     model_config = SettingsConfigDict(
@@ -59,13 +64,8 @@ class GoogleAuthSettings(EnvFileSettings):
     )
 
 
-class YandexAuthSettings(EnvFileSettings):
+class YandexAuthSettings(ExternalAuthSettings):
 
-    CLIENT_ID: str
-    CLIENT_SECRET: str
-    REDIRECT_URI: str
-    AUTH_URI: str
-    TOKEN_URI: str
     USER_INFO_URI: str
 
     model_config = SettingsConfigDict(
