@@ -1,0 +1,62 @@
+# Конвертер валют
+Данный проект представляет из себя стандартный конвертер валют с получением актуальных и исторических курсов валют, динамики изменения курсов валют и стандартной конвертации пары валют.\
+В качестве API использован https://apilayer.com/marketplace/currency_data-api
+## Требования
+Для корректной работы требуется python 3.12. Необходимые библиотеки указаны в файле **poetry.lock**.\
+Переменные окружения извлекаются **только из файлов**. В корневой папке проекта должны находиться:
+* .env.currency
+  - API_KEY
+  - API_URL
+* .env.db
+  - DB_DIALECT
+  - DB_DRIVER
+  - DB_USERNAME
+  - DB_PASSWORD
+  - DB_HOST
+  - DB_PORT
+  - DB_DATABASE
+* .env.google
+  - CLIENT_ID
+  - CLIENT_SECRET
+  - REDIRECT_URI
+  - TOKEN_URI
+  - AUTH_URI
+  - CERT_URI
+* .env.yandex
+  - CLIENT_ID
+  - CLIENT_SECRET
+  - REDIRECT_URI
+  - AUTH_URI
+  - TOKEN_URI
+  - USER_INFO_URI
+* .env.jwt
+  - SECRET_KEY
+  - ACCESS_TOKEN_EXPIRES
+  - REFRESH_TOKEN_EXPIRES
+  - ALGORITHM
+## Описание
+### Авторизация
+Авторизация реализована через связку access и refresh токенов. По истечению срока жизни access токена необходимо передать на эндпойнт `'/refresh_tokens'` refresh токен и получить новую пару токенов.
+
+Токены необходимо передавать в заголовках запроса:
+- access токен в заголовке **Authorization** в формате `{'Authorization': 'bearer <токен>'}`
+- refresh токен в заголовке **X-Refresh-Token** в формате `{'X-Refresh-Token': '<токен>'}`
+
+Логин возможен тремя способами:
+1. `'/login'` стандартный логин через username и password
+2. `'/login/google'` внешняя аутентификация через oauth google
+3. `'/login/yandex'` внешняя аутентификация через oauth yandex
+### Основные функции
+Доступны следующие эндпойнты:
+1. `'/currency/list'`\
+   Получение списка всех валют
+2. `'/currency/convert'`\
+   Конвертация определенного количества одной валюты в другую на конкретную дату
+3. `'/currency/exchange_rate/live'`\
+   Получение наиболее актуального курса одной и более валют по отношению к исходной
+4. `'/currency/exchange_rate/hist'`\
+   Получение курса одной и более валют по отношению к исходной на определенную дату
+5. `'/currency/exchange_rate/change'`\
+   Получение динамики курса одной и более валют по отношению к исходной за указанный промежуток времени
+6. `'/currency/exchange_rate/daily'`\
+    Получение ежедневного курса одной и более валют по отношению к исходной за указанный промежуток времени (не более 365 дней)
