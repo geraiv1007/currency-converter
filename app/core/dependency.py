@@ -125,7 +125,7 @@ def get_currency_cache(
     return CurrencyCache(cache_connection)
 
 
-async def get_currency_service(
+def get_currency_service(
         currency_client: Annotated[CurrencyClient, Depends(get_currency_client)],
         currency_cache: Annotated[CurrencyCache, Depends(get_currency_cache)]
 ):

@@ -1,6 +1,6 @@
-from datetime import date, datetime, timezone
+from datetime import date
 from dateutil.parser import isoparse
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from typing import Any
 import re
 
@@ -92,18 +92,6 @@ class ExchangeRateResponse(BaseModel):
     source: str
     exchange_rate: dict[str, float]
 
-    @model_validator(mode='before')
-    @classmethod
-    def format_response(cls, data: Any):
-        new_data = {}
-        for key, value in data['quotes'].items():
-            currency = key.split(data['source'])[1]
-            new_data[currency] = value
-        data['exchange_rate'] = new_data
-        del data['quotes']
-        data['date'] = datetime.fromtimestamp(data.pop('timestamp'), timezone.utc).strftime('%Y-%m-%d %H:%M')
-        return data
-
 
 class ExchangeRatePeriodAlterRequest(ExchangeRateRequest):
 
@@ -150,32 +138,7 @@ class ExchangeRatePeriodAlterResponse(ExchangeRatePeriodResponse):
 
     dynamics: dict[str, dict[str, float]]
 
-    @model_validator(mode='before')
-    @classmethod
-    def format_response(cls, data: Any):
-        new_data = {}
-        for key, value in data['quotes'].items():
-            currency = key.split(data['source'])[1]
-            new_data[currency] = value
-        data['dynamics'] = new_data
-        del data['quotes']
-        return data
-
 
 class ExchangeRatePeriodDailyResponse(ExchangeRatePeriodResponse):
 
     data: dict[str, dict[str, float]]
-
-    @model_validator(mode='before')
-    @classmethod
-    def format_response(cls, data: Any):
-        new_data = {}
-        for date_, info in data['quotes'].items():
-            updated = {}
-            for currency, rate in info.items():
-                currency = currency.split(data['source'])[1]
-                updated[currency] = rate
-            new_data[date_] = updated
-        data['data'] = new_data
-        del data['quotes']
-        return data

@@ -1,4 +1,5 @@
 from aiohttp import ClientSession
+from datetime import datetime, timezone
 from urllib.parse import urljoin
 
 from app.api.schemas.currency import (
@@ -68,6 +69,13 @@ class CurrencyClient:
         data = await self._currency_api_request(endpoint, params=currency_data.model_dump())
         if not data.get('success'):
             raise ExchangeRateInfoException
+        new_data = {}
+        for key, value in data['quotes'].items():
+            currency = key.split(data['source'])[1]
+            new_data[currency] = value
+        data['exchange_rate'] = new_data
+        del data['quotes']
+        data['date'] = datetime.fromtimestamp(data.pop('timestamp'), timezone.utc).strftime('%Y-%m-%d %H:%M')
         return ExchangeRateResponse.model_validate(data)
 
     async def get_live_exchange_rate_info(
@@ -89,6 +97,15 @@ class CurrencyClient:
         data = await self._currency_api_request('timeframe', params=currency_data.model_dump())
         if not data.get('success'):
             raise ExchangeRateInfoException
+        new_data = {}
+        for date_, info in data['quotes'].items():
+            updated = {}
+            for currency, rate in info.items():
+                currency = currency.split(data['source'])[1]
+                updated[currency] = rate
+            new_data[date_] = updated
+        data['data'] = new_data
+        del data['quotes']
         return ExchangeRatePeriodDailyResponse.model_validate(data)
 
     async def get_exchange_rate_dynamics(
@@ -98,4 +115,10 @@ class CurrencyClient:
         data = await self._currency_api_request('change', params=currency_data.model_dump())
         if not data.get('success'):
             raise ExchangeRateInfoException
+        new_data = {}
+        for key, value in data['quotes'].items():
+            currency = key.split(data['source'])[1]
+            new_data[currency] = value
+        data['dynamics'] = new_data
+        del data['quotes']
         return ExchangeRatePeriodAlterResponse.model_validate(data)
