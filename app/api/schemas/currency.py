@@ -47,9 +47,9 @@ class CurrencyConvertRequest(BaseModel, IsoDateCheckMixin):
     @field_validator('amount', mode='before')
     @classmethod
     def check_amount(cls, value):
-        if not re.fullmatch(r'\d+', str(value)):
+        if not re.fullmatch(r'\d+(\.\d{1,2})?', str(value)):
             raise ValueError('Amount must be an integer')
-        if not int(value) > 0:
+        if not float(value) > 0:
             raise ValueError('Amount must be greater than 0')
         return value
 
@@ -60,19 +60,6 @@ class CurrencyConvertResponse(CurrencyConvertRequest):
 
     result: float
     exchange_rate: float
-
-    @model_validator(mode='before')
-    @classmethod
-    def format_response(cls, data: Any):
-        new_data = {
-            'exchange_from': data['query']['from'],
-            'exchange_to': data['query']['to'],
-            'amount': str(data['query']['amount']),
-            'date': data['date'],
-            'result': data['result'],
-            'exchange_rate': data['info']['quote']
-        }
-        return new_data
 
 
 class ExchangeRateRequest(BaseModel):

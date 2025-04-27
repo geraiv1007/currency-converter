@@ -102,3 +102,16 @@ class DBSettings(EnvFileSettings):
         }
         url = URL.create(**connect_args)
         return str(url)
+
+
+class CacheSettings(EnvFileSettings):
+
+    HOST: str
+    PORT: int
+    DB: str
+    PASSWORD: str | None = Field(default=None)
+
+    model_config = SettingsConfigDict(
+        extra='forbid',
+        env_file=Path(__file__).resolve().parent.parent.parent / '.env.cache'
+    )

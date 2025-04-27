@@ -1,13 +1,16 @@
 from fastapi import Depends, Security
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 
+from app.cache.connect import get_redis_connection
 from app.client.currency import CurrencyClient
 from app.client.google import GoogleClient
 from app.client.yandex import YandexClient
 from app.core.security import api_key_refresh_token, api_key_access_token
 from app.db.connect import async_session_factory
 from app.exceptions.exceptions import WrongAuthorizationHeaderException
+from app.repositories.currency_cache import CurrencyCache
 from app.repositories.user import UserRepository
 from app.services.auth import AuthService
 from app.services.currency import CurrencyService
@@ -104,13 +107,29 @@ async def validate_refresh_token(
     return await auth_service.validate_token(refresh_token, token_type='refresh', verify_exp=True)
 
 
-async def get_currency_client(
+def get_currency_client(
         currency_client: Annotated[CurrencyClient, Depends()]
 ):
     return currency_client
 
 
-async def get_currency_service(
-        currency_client: Annotated[CurrencyClient, Depends(get_currency_client)]
+def get_cache_connection(
+        cache_connection: Annotated[Redis, Depends(get_redis_connection)]
 ):
-    return CurrencyService(currency_client=currency_client)
+    return cache_connection
+
+
+def get_currency_cache(
+        cache_connection: Annotated[Redis, Depends(get_cache_connection)]
+):
+    return CurrencyCache(cache_connection)
+
+
+async def get_currency_service(
+        currency_client: Annotated[CurrencyClient, Depends(get_currency_client)],
+        currency_cache: Annotated[CurrencyCache, Depends(get_currency_cache)]
+):
+    return CurrencyService(
+        currency_client=currency_client,
+        currency_cache=currency_cache
+    )

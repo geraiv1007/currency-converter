@@ -36,6 +36,7 @@ class CurrencyClient:
         return data
 
     async def get_currency_list(self) -> dict[str, str]:
+        print('дергаем валюты через API')
         data = await self._currency_api_request('list')
         currencies = data.get('currencies')
         return currencies
@@ -47,7 +48,15 @@ class CurrencyClient:
         data = await self._currency_api_request('convert', params=currency_data.model_dump(by_alias=True))
         if not data.get('success'):
             raise CurrencyConversionException
-        return CurrencyConvertResponse.model_validate(data)
+        convert_result = {
+            'exchange_from': data['query']['from'],
+            'exchange_to': data['query']['to'],
+            'amount': str(data['query']['amount']),
+            'date': data['date'],
+            'result': data['result'],
+            'exchange_rate': data['info']['quote']
+        }
+        return CurrencyConvertResponse.model_validate(convert_result)
 
     async def _get_exchange_rate_info(
             self,

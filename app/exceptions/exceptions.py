@@ -77,3 +77,8 @@ class CurrencyConversionException(CurrencyException):
 class ExchangeRateInfoException(CurrencyException):
 
     detail = 'Exchange rate info unavailable. Please try again'
+
+
+class WrongCurrencyCodeException(CurrencyException):
+
+    detail = 'Wrong currency code(s) received. Please try again'
