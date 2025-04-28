@@ -66,12 +66,13 @@ class CurrencyService:
                 )
                 return convert_result
         convert_result = await self.currency_client.convert_currency(currency_data)
-        await self.currency_cache.set_exchange_rate(
-            from_=exchange_from,
-            to_=exchange_to,
-            date_=currency_data.date,
-            rate=convert_result.exchange_rate
-                )
+        if date.today().isoformat() != currency_data.date:
+            await self.currency_cache.set_exchange_rate(
+                from_=exchange_from,
+                to_=exchange_to,
+                date_=currency_data.date,
+                rate=convert_result.exchange_rate
+                    )
         return convert_result
 
     async def get_live_currency_exchange_rate(

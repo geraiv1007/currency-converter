@@ -70,7 +70,7 @@ async def get_currency_list(
             }
         }
     },
-    #dependencies=[Depends(validate_access_token)]
+    dependencies=[Depends(validate_access_token)]
 )
 async def get_live_exchange_rate(
         currency_service: Annotated[CurrencyService, Depends(get_currency_service)],
@@ -102,7 +102,7 @@ async def get_live_exchange_rate(
             }
         }
     },
-    #dependencies=[Depends(validate_access_token)]
+    dependencies=[Depends(validate_access_token)]
 )
 async def get_hist_exchange_rate(
     currency_service: Annotated[CurrencyService, Depends(get_currency_service)],
@@ -139,7 +139,7 @@ async def get_hist_exchange_rate(
             }
         }
     },
-    #dependencies=[Depends(validate_access_token)]
+    dependencies=[Depends(validate_access_token)]
 )
 async def get_exchange_rate_dynamics(
         currency_service: Annotated[CurrencyService, Depends(get_currency_service)],
@@ -178,7 +178,7 @@ async def get_exchange_rate_dynamics(
             }
         }
     },
-    #dependencies=[Depends(validate_access_token)]
+    dependencies=[Depends(validate_access_token)]
 )
 async def get_daily_exchange_rate(
         currency_service: Annotated[CurrencyService, Depends(get_currency_service)],
@@ -210,7 +210,7 @@ async def get_daily_exchange_rate(
             }
         }
     },
-    #dependencies=[Depends(validate_access_token)]
+    dependencies=[Depends(validate_access_token)]
 )
 async def convert_currency(
         currency_service: Annotated[CurrencyService, Depends(get_currency_service)],

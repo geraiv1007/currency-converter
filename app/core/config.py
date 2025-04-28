@@ -29,20 +29,11 @@ class JWTSettings(BaseModel):
         description='One of digital signature algorithms for decoding/encoding JWT'
     )
 
-    # model_config = SettingsConfigDict(
-    #     extra='forbid',
-    #     env_file=Path(__file__).resolve().parent.parent.parent / '.env.jwt'
-    # )
 
 class CurrencyApiSettings(BaseModel):
 
     API_KEY: str
     API_URL: str
-
-    # model_config = SettingsConfigDict(
-    #     extra='forbid',
-    #     env_file=Path(__file__).resolve().parent.parent.parent / '.env.currency'
-    # )
 
 
 class ExternalAuthSettings(BaseModel):
@@ -58,20 +49,10 @@ class GoogleAuthSettings(ExternalAuthSettings):
 
     CERT_URI: str
 
-    # model_config = SettingsConfigDict(
-    #     extra='forbid',
-    #     env_file=Path(__file__).resolve().parent.parent.parent / '.env.google'
-    # )
-
 
 class YandexAuthSettings(ExternalAuthSettings):
 
     USER_INFO_URI: str
-
-    # model_config = SettingsConfigDict(
-    #     extra='forbid',
-    #     env_file=Path(__file__).resolve().parent.parent.parent / '.env.yandex'
-    # )
 
 
 class DBSettings(BaseModel):
@@ -84,11 +65,6 @@ class DBSettings(BaseModel):
     PORT: int
     DATABASE: str
 
-    # model_config = SettingsConfigDict(
-    #     extra='forbid',
-    #     env_prefix='DB_',
-    #     env_file=Path(__file__).resolve().parent.parent.parent / '.env.db'
-    # )
 
     @property
     def connection_url(self):
@@ -111,11 +87,6 @@ class CacheSettings(BaseModel):
     DB: str
     PASSWORD: str | None = Field(default=None)
 
-    # model_config = SettingsConfigDict(
-    #     extra='forbid',
-    #     env_file=Path(__file__).resolve().parent.parent.parent / '.env.cache'
-    # )
-
 
 class Settings(EnvFileSettings):
 
@@ -127,7 +98,7 @@ class Settings(EnvFileSettings):
     CURRENCY: CurrencyApiSettings
 
     model_config = SettingsConfigDict(
-        #extra='forbid',
+        extra='forbid',
         env_nested_delimiter='__',
         env_file=find_dotenv()
     )
