@@ -1,6 +1,6 @@
-from pathlib import Path
+from dotenv import find_dotenv
+from pydantic import BaseModel, Field, PositiveInt
 from pydantic_settings import BaseSettings, SettingsConfigDict, PydanticBaseSettingsSource
-from pydantic import Field, PositiveInt
 from sqlalchemy import URL
 from typing import Literal, Type, Tuple
 
@@ -19,7 +19,7 @@ class EnvFileSettings(BaseSettings):
         return dotenv_settings,
 
 
-class JWTSettings(EnvFileSettings):
+class JWTSettings(BaseModel):
 
     SECRET_KEY: str = Field(description='Secret key for encoding/decoding JWT')
     ACCESS_TOKEN_EXPIRES: PositiveInt = Field(default=300, description='Lifetime of an access token in seconds')
@@ -29,23 +29,23 @@ class JWTSettings(EnvFileSettings):
         description='One of digital signature algorithms for decoding/encoding JWT'
     )
 
-    model_config = SettingsConfigDict(
-        extra='forbid',
-        env_file=Path(__file__).resolve().parent.parent.parent / '.env.jwt'
-    )
+    # model_config = SettingsConfigDict(
+    #     extra='forbid',
+    #     env_file=Path(__file__).resolve().parent.parent.parent / '.env.jwt'
+    # )
 
-class CurrencyApiSetting(EnvFileSettings):
+class CurrencyApiSettings(BaseModel):
 
     API_KEY: str
     API_URL: str
 
-    model_config = SettingsConfigDict(
-        extra='forbid',
-        env_file=Path(__file__).resolve().parent.parent.parent / '.env.currency'
-    )
+    # model_config = SettingsConfigDict(
+    #     extra='forbid',
+    #     env_file=Path(__file__).resolve().parent.parent.parent / '.env.currency'
+    # )
 
 
-class ExternalAuthSettings(EnvFileSettings):
+class ExternalAuthSettings(BaseModel):
 
     CLIENT_ID: str
     CLIENT_SECRET: str
@@ -58,23 +58,23 @@ class GoogleAuthSettings(ExternalAuthSettings):
 
     CERT_URI: str
 
-    model_config = SettingsConfigDict(
-        extra='forbid',
-        env_file=Path(__file__).resolve().parent.parent.parent / '.env.google'
-    )
+    # model_config = SettingsConfigDict(
+    #     extra='forbid',
+    #     env_file=Path(__file__).resolve().parent.parent.parent / '.env.google'
+    # )
 
 
 class YandexAuthSettings(ExternalAuthSettings):
 
     USER_INFO_URI: str
 
-    model_config = SettingsConfigDict(
-        extra='forbid',
-        env_file=Path(__file__).resolve().parent.parent.parent / '.env.yandex'
-    )
+    # model_config = SettingsConfigDict(
+    #     extra='forbid',
+    #     env_file=Path(__file__).resolve().parent.parent.parent / '.env.yandex'
+    # )
 
 
-class DBSettings(EnvFileSettings):
+class DBSettings(BaseModel):
 
     DIALECT: str = Field(default='postgres')
     DRIVER: str = Field(default='asyncpg')
@@ -84,11 +84,11 @@ class DBSettings(EnvFileSettings):
     PORT: int
     DATABASE: str
 
-    model_config = SettingsConfigDict(
-        extra='forbid',
-        env_prefix='DB_',
-        env_file=Path(__file__).resolve().parent.parent.parent / '.env.db'
-    )
+    # model_config = SettingsConfigDict(
+    #     extra='forbid',
+    #     env_prefix='DB_',
+    #     env_file=Path(__file__).resolve().parent.parent.parent / '.env.db'
+    # )
 
     @property
     def connection_url(self):
@@ -104,14 +104,30 @@ class DBSettings(EnvFileSettings):
         return str(url)
 
 
-class CacheSettings(EnvFileSettings):
+class CacheSettings(BaseModel):
 
     HOST: str
     PORT: int
     DB: str
     PASSWORD: str | None = Field(default=None)
 
+    # model_config = SettingsConfigDict(
+    #     extra='forbid',
+    #     env_file=Path(__file__).resolve().parent.parent.parent / '.env.cache'
+    # )
+
+
+class Settings(EnvFileSettings):
+
+    DB: DBSettings
+    CACHE: CacheSettings
+    JWT: JWTSettings
+    GOOGLE: GoogleAuthSettings
+    YANDEX: YandexAuthSettings
+    CURRENCY: CurrencyApiSettings
+
     model_config = SettingsConfigDict(
-        extra='forbid',
-        env_file=Path(__file__).resolve().parent.parent.parent / '.env.cache'
+        #extra='forbid',
+        env_nested_delimiter='__',
+        env_file=find_dotenv()
     )

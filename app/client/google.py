@@ -5,7 +5,7 @@ from jwt.exceptions import InvalidAudienceError, ExpiredSignatureError, InvalidI
 from yarl import URL
 
 from app.api.schemas.user import GoogleUserCreate
-from app.core.config import GoogleAuthSettings
+from app.core.config import Settings
 from app.exceptions.exceptions import InvalidGoogleTokenException
 
 
@@ -13,7 +13,7 @@ class GoogleClient:
 
     def __init__(self):
         self.async_session = ClientSession
-        self.settings = GoogleAuthSettings()
+        self.settings = Settings().GOOGLE
 
     def get_redirect_url(self) -> str:
         url = self.settings.AUTH_URI

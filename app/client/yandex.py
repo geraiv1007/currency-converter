@@ -2,14 +2,14 @@ from aiohttp import ClientSession
 from yarl import URL
 
 from app.api.schemas.user import YandexUserCreate
-from app.core.config import YandexAuthSettings
+from app.core.config import Settings
 
 
 class YandexClient:
 
     def __init__(self):
         self.async_session = ClientSession
-        self.settings = YandexAuthSettings()
+        self.settings = Settings().YANDEX
 
 
     def get_redirect_url(self) -> str:

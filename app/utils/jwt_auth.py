@@ -4,14 +4,14 @@ from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 from typing import Any, Literal
 from uuid import uuid4
 
-from app.core.config import JWTSettings
+from app.core.config import Settings
 from app.exceptions.exceptions import AccessTokenExpiredException, InvalidTokenException
 
 
 class JWTAuth:
 
     def __init__(self):
-        self.jwt_settings = JWTSettings()
+        self.jwt_settings = Settings().JWT
 
     def create_jwt_token(self, email: str, token_type: Literal['access', 'refresh'], data=None) -> str:
         current_time = datetime.now(tz=timezone.utc)

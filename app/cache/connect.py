@@ -1,10 +1,10 @@
 import redis.asyncio as aioredis
 
-from app.core.config import CacheSettings
+from app.core.config import Settings
 
 
 def get_redis_connection():
-    settings = CacheSettings()
+    settings = Settings().CACHE
     redis_conn = aioredis.Redis(
         host=settings.HOST,
         port=settings.PORT,
