@@ -22,12 +22,12 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 
-from app.core.config import Settings
+from app.core.config import settings
 from app.db.models import Base
 
 target_metadata = Base.metadata
 
-db_settings = Settings().DB
+db_settings = settings.DB
 config.set_main_option("sqlalchemy.url", db_settings.connection_url)
 
 # other values from the config, defined by the needs of env.py,

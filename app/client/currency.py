@@ -13,7 +13,7 @@ from app.api.schemas.currency import (
     ExchangeRateRequest,
     ExchangeRateResponse
 )
-from app.core.config import Settings
+from app.core.config import settings
 from app.exceptions.exceptions import CurrencyConversionException, ExchangeRateInfoException
 
 
@@ -21,7 +21,7 @@ class CurrencyClient:
 
     def __init__(self):
         self.async_session = ClientSession
-        self.settings = Settings().CURRENCY
+        self.settings = settings.CURRENCY
         self.header = {'apikey': self.settings.API_KEY}
 
     async def _currency_api_request(self, endpoint: str, params: dict = None) -> dict:

@@ -1,4 +1,5 @@
 from dotenv import find_dotenv
+from functools import lru_cache
 from pydantic import BaseModel, Field, PositiveInt
 from pydantic_settings import BaseSettings, SettingsConfigDict, PydanticBaseSettingsSource
 from sqlalchemy import URL
@@ -102,3 +103,11 @@ class Settings(EnvFileSettings):
         env_nested_delimiter='__',
         env_file=find_dotenv()
     )
+
+
+@lru_cache(maxsize=1)
+def get_settings() -> Settings:
+    return Settings()
+
+
+settings = get_settings()
