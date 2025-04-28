@@ -11,41 +11,8 @@
 - **Alembic** — миграции схемы БД
 ## Требования
 Для корректной работы требуется python 3.12. Необходимые библиотеки указаны в файле **poetry.lock**.\
-Переменные окружения извлекаются **только из файлов**. В корневой папке проекта должны находиться:
-* .env.currency
-  - API_KEY
-  - API_URL
-* .env.db
-  - DB_DIALECT
-  - DB_DRIVER
-  - DB_USERNAME
-  - DB_PASSWORD
-  - DB_HOST
-  - DB_PORT
-  - DB_DATABASE
-* .env.cache
-  - HOST
-  - PORT
-  - DB
-* .env.google
-  - CLIENT_ID
-  - CLIENT_SECRET
-  - REDIRECT_URI
-  - TOKEN_URI
-  - AUTH_URI
-  - CERT_URI
-* .env.yandex
-  - CLIENT_ID
-  - CLIENT_SECRET
-  - REDIRECT_URI
-  - AUTH_URI
-  - TOKEN_URI
-  - USER_INFO_URI
-* .env.jwt
-  - SECRET_KEY
-  - ACCESS_TOKEN_EXPIRES
-  - REFRESH_TOKEN_EXPIRES
-  - ALGORITHM
+Переменные окружения извлекаются **только из файлa .env** из корневой папки проекта.\
+Для примера приложен файл **.env.example**, в котором перечислены все необходимые переменные окружения.
 ## Описание
 ### Авторизация
 Авторизация реализована через связку access и refresh токенов. По истечению срока жизни access токена необходимо передать на эндпойнт `'/refresh_tokens'` refresh токен и получить новую пару токенов.
