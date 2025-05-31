@@ -28,7 +28,7 @@ from app.db.models import Base
 target_metadata = Base.metadata
 
 db_settings = settings.DB
-config.set_main_option("sqlalchemy.url", db_settings.connection_url)
+config.set_main_option("sqlalchemy.url", db_settings.connection_url.render_as_string(hide_password=False))
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

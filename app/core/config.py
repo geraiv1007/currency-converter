@@ -78,7 +78,7 @@ class DBSettings(BaseModel):
             'database': self.DATABASE
         }
         url = URL.create(**connect_args)
-        return str(url)
+        return url
 
 
 class CacheSettings(BaseModel):
