@@ -6,4 +6,3 @@ COPY poetry.lock pyproject.toml .
 RUN poetry install --no-root
 COPY app ./app/
 COPY .env alembic.ini main.py .
-#RUN poetry run alembic upgrade head
