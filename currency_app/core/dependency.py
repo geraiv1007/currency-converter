@@ -1,9 +1,9 @@
-from fastapi import Depends, Security
+from fastapi import Depends, Security, Request
+from faststream.kafka.publisher.asyncapi import AsyncAPIDefaultPublisher
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 
-from currency_app.broker.kafka_broker import currency_publisher
 from currency_app.cache.connect import get_redis_connection
 from currency_app.client.currency import CurrencyClient
 from currency_app.client.google import GoogleClient
@@ -126,9 +126,20 @@ def get_currency_cache(
     return CurrencyCache(cache_connection)
 
 
+def get_broker_publisher(request: Request):
+    currency_publisher = request.app.state.kafka_broker.publisher
+    return currency_publisher
+
+
+def get_broker_admin(request: Request):
+    admin_client = request.app.state.admin_client
+    return admin_client
+
+
 def get_currency_service(
         currency_client: Annotated[CurrencyClient, Depends(get_currency_client)],
-        currency_cache: Annotated[CurrencyCache, Depends(get_currency_cache)]
+        currency_cache: Annotated[CurrencyCache, Depends(get_currency_cache)],
+        currency_publisher: Annotated[AsyncAPIDefaultPublisher, Depends(get_broker_publisher)]
 ):
     return CurrencyService(
         currency_client=currency_client,
