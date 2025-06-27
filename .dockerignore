@@ -1,4 +1,6 @@
 .dockerignore
+.git
+.idea
 __pycache__
 .venv
 *.pyc

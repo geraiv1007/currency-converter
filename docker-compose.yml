@@ -1,9 +1,9 @@
 services:
-    app:
+    currency-app:
         build:
             context: .
-            dockerfile: ./Dockerfile
-        env_file: .env
+            dockerfile: ./currency_app/Dockerfile
+        env_file: currency.env
         networks:
             - backend-network
         depends_on:
@@ -13,21 +13,45 @@ services:
                 condition: service_healthy
             migration:
                 condition: service_completed_successfully
+            broker:
+                condition: service_healthy
         restart: unless-stopped
         ports:
             - '8000:8000'
-        command: sh -c "poetry run gunicorn main:app --workers 4 --worker-class uvicorn_worker.UvicornWorker --bind 0.0.0.0:8000"
+        healthcheck:
+            test: sh -c "curl -f http://localhost:8000/health/check || exit 1"
+            interval: 5s
+            timeout: 5s
+            retries: 10
+            start_period: 15s
+        command: ["poetry", "run", "gunicorn", "currency_app.main:app", "--workers", "4", "--worker-class", "uvicorn_worker.UvicornWorker", "--bind", "0.0.0.0:8000"]
+    email-app:
+        build:
+            context: .
+            dockerfile: ./email_app/Dockerfile
+        env_file: mail.env
+        networks:
+            - backend-network
+        depends_on:
+            currency-app:
+                condition: service_healthy
+            broker:
+                condition: service_healthy
+        restart: unless-stopped
+        ports:
+            - '8001:8001'
+        command: ["poetry", "run", "gunicorn", "email_app.main:app", "--workers", "2", "--worker-class", "uvicorn_worker.UvicornWorker", "--bind", "0.0.0.0:8001"]
     migration:
         build:
             context: .
-            dockerfile: ./Dockerfile
-        env_file: .env
+            dockerfile: ./currency_app/Dockerfile
+        env_file: currency.env
         networks:
             - backend-network
         depends_on:
             db:
                 condition: service_healthy
-        command: sh -c "poetry run alembic upgrade head"
+        command: ["poetry", "run", "alembic", "upgrade", "head"]
     db:
         image: postgres:15
         environment:
@@ -50,7 +74,7 @@ services:
         restart: unless-stopped
     cache:
         image: redis/redis-stack-server:latest
-        env_file: .env
+        env_file: currency.env
         volumes:
             - type: volume
               source: cache-data
@@ -65,11 +89,43 @@ services:
             timeout: 5s
             retries: 10
         restart: unless-stopped
-        
+    broker:
+        image: apache/kafka:latest
+        env_file: currency.env
+        environment:
+            KAFKA_NODE_ID: 1
+            KAFKA_PROCESS_ROLES: broker,controller
+            KAFKA_LISTENERS: PLAINTEXT://broker:9092,CONTROLLER://broker:9093
+            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092
+            KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+            KAFKA_CONTROLLER_QUORUM_VOTERS: 1@broker:9093
+            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+            KAFKA_LOG_DIRS: /var/lib/kafka/data
+            KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+#            KAFKA_NUM_PARTITIONS: 2
+            CLUSTER_ID: 266f747a-5129-11f0-ad82-00155d4308a4
+        volumes:
+            - type: volume
+              source: broker-data
+              target: /var/lib/kafka/data/
+        networks:
+            - backend-network
+        ports:
+          - '9092:9092'
+          - '9093:9093'
+        healthcheck:
+            test: sh -c "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server broker:9092"
+            interval: 5s
+            timeout: 5s
+            retries: 10
+            start_period: 20s
+        restart: unless-stopped
     
 volumes:
     pg-data:
     cache-data:
+    broker-data:
 
 networks:
     backend-network:
